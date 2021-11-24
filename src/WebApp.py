@@ -96,7 +96,7 @@ class MyApp(App):
         self.vagueSearchContent = gui.Label('', width='90%', style={'font-size': '20px'})
 
         # 选择模型
-        self.modelSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.modelSelect = gui.HBox(width='90%', height=60, margin='10px auto')
 
         self.modelLabelText = gui.Label('当前模型：', width='40%', height=20, margin='10px')
         self.modelSelect.append(self.modelLabelText)
