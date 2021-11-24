@@ -40,6 +40,7 @@ class MyApp(App):
         self.xlsDataSet=xlrd.open_workbook("./data/data.xlsx")
         self.dataSetSheet = self.xlsDataSet.sheets()[0]
         nrows = self.dataSetSheet.nrows
+        print(nrows)
         for index in range(0,nrows):
             if index==0:
                 self.labels=[str(self.dataSetSheet.cell(index,cindex).value).replace(" ", "") for cindex in range(1,self.featrueEIndex+2)]
@@ -233,6 +234,21 @@ class MyApp(App):
         # 数据库页面
         self.databaseView = gui.VBox(width='80%', margin='0px auto', style={'display': 'block', 'overflow': 'hidden'})
         mainBox.add_tab(self.databaseView, '当前数据库')
+
+        self.databaseViewInfo = gui.Label('这里列出的是我们当前数据库中的所有数据，我们会在下个版本开通数据库访问服务。',width='90%', margin='20px')
+        self.databaseView.append(self.databaseViewInfo)
+
+        databaseViewSet = [] # 总
+        for row in range(0, nrows):
+            databaseViewRow = [] # 行
+            for col in range(9):
+                databaseViewRow.append(str(self.dataSetSheet.cell_value(row, col)))
+            databaseViewSet.append(databaseViewRow)
+
+        self.databaseViewTable = gui.Table.new_from_list(databaseViewSet, width='100%')
+        self.databaseView.append(self.databaseViewTable)
+
+
 
         # 页面四
         # 介绍页面
