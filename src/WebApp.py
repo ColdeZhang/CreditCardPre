@@ -238,18 +238,33 @@ class MyApp(App):
         self.databaseViewInfo = gui.Label('这里列出的是我们当前数据库中的所有数据，我们会在下个版本开通数据库访问服务。',width='90%', margin='20px', style={'font-size': '20px'})
         self.databaseView.append(self.databaseViewInfo)
 
-        self.databaseViewCounter = gui.Label('当前数据库中共有：' + str(nrows * 9) + '条数据。',width='90%', margin='20px')
+        self.databaseViewCounter = gui.Label('当前数据库中共有：' + str(nrows * 9) + ' 条数据（此页面数据库与后台每1小时同步一次）。',width='90%', margin='20px')
         self.databaseView.append(self.databaseViewCounter)
 
-        databaseViewSet = [] # 总
-        for row in range(0, nrows):
-            databaseViewRow = [] # 行
-            for col in range(9):
-                databaseViewRow.append(str(self.dataSetSheet.cell_value(row, col)))
-            databaseViewSet.append(databaseViewRow)
-
-        self.databaseViewTable = gui.Table.new_from_list(databaseViewSet, width='100%')
+        self.databaseViewTotalPage = nrows * 9 // 10 + 1
+        self.databaseViewCurrentPage = 1
+        self.databaseViewTable = gui.TableWidget(11, 9, width='100%')
         self.databaseView.append(self.databaseViewTable)
+
+        self.databaseViewPageChanger = gui.Container(width='100%',layout_orientation=gui.Container.LAYOUT_HORIZONTAL, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.databaseViewPreviewButton = gui.Button('<上一页<', width='20%', height=30)
+        self.databaseViewPageLabelBox = gui.HBox(width = '60%', height=30, margin='0px auto')
+        self.databaseViewPageLabel = gui.Label(str(self.databaseViewCurrentPage) + ' / ' + str(self.databaseViewTotalPage),height=30)
+        self.databaseViewPageLabelBox.append(self.databaseViewPageLabel)
+        self.databaseViewNextButton = gui.Button('>下一页>', width='20%', height=30)
+        self.databaseViewPreviewButton.onclick.do(self.databaseViewPreviewButtonClicked)
+        self.databaseViewNextButton.onclick.do(self.databaseViewNextButtonClicked)
+        self.databaseViewPageChanger.append(self.databaseViewPreviewButton)
+        self.databaseViewPageChanger.append(self.databaseViewPageLabelBox)
+        self.databaseViewPageChanger.append(self.databaseViewNextButton)
+        self.databaseView.append(self.databaseViewPageChanger)
+
+        for col in range(9):
+            self.databaseViewTable.item_at(0, col).set_text(str(self.dataSetSheet.cell_value(0, col)))
+        for row in range(10): #(self.databaseViewCurrentPage-1)*10+1, self.databaseViewCurrentPage*10+1
+            for col in range(9):
+                self.databaseViewTable.item_at(row+1, col).set_text(str(self.dataSetSheet.cell_value((self.databaseViewCurrentPage-1)*10+1 + row, col)))
+        self.databaseViewPageLabel.set_text(str(self.databaseViewCurrentPage) + '/' + str(self.databaseViewTotalPage))
 
 
 
@@ -262,32 +277,12 @@ class MyApp(App):
         return mainBox
 
     
-    def getCrime_to_records(self): 
-        return self.crime_to_records
+
        
     def getFeatureLabel(self):
         return [str(self.dataSetSheet.cell(0,cindex).value).replace(" ", "") for cindex in range(1,self.featrueEIndex+2)]
        
-    def getOlds(self):
-        return self.olds
-            
-    def getEduLevels(self):
-        return tuple(self.eduLevel)
-        
-    def getJobs(self):
-        return tuple(self.jobs)
-    
-    def getCashOutBehavior(self):
-        return tuple(self.cashOutBehavior)
-        
-    def getConsuGoals(self):
-        return tuple(self.consuGoals)
-    
-    def getProofs(self):
-        return tuple(self.proofs)
-    
-    def getCrimes(self):
-        return tuple(self.crimes)
+
         
 
         #计算信息熵
@@ -411,7 +406,32 @@ class MyApp(App):
             self.preciseResultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
         else:
             self.preciseResultLabel.set_text(predictLabel)
+
+    def databaseViewPreviewButtonClicked(self, widget):
+        for col in range(9):
+            self.databaseViewTable.item_at(0, col).set_text(str(self.dataSetSheet.cell_value(0, col)))
+        if self.databaseViewCurrentPage == 1:
+            self.databaseViewCurrentPage = self.databaseViewTotalPage - 1
+        else:
+            self.databaseViewCurrentPage -= 1
+        for row in range(10): #(self.databaseViewCurrentPage-1)*10+1, self.databaseViewCurrentPage*10+1
+            for col in range(9):
+                self.databaseViewTable.item_at(row+1, col).set_text(str(self.dataSetSheet.cell_value((self.databaseViewCurrentPage-1)*10+1 + row, col)))
+        self.databaseViewPageLabel.set_text(str(self.databaseViewCurrentPage) + '/' + str(self.databaseViewTotalPage))
                 
+    def databaseViewNextButtonClicked(self, widget):
+        for col in range(9):
+            self.databaseViewTable.item_at(0, col).set_text(str(self.dataSetSheet.cell_value(0, col)))
+        if self.databaseViewCurrentPage == self.databaseViewTotalPage - 1:
+            self.databaseViewCurrentPage = 1
+        else:
+            self.databaseViewCurrentPage += 1
+        for row in range(10): #(self.databaseViewCurrentPage-1)*10+1, self.databaseViewCurrentPage*10+1
+            for col in range(9):
+                self.databaseViewTable.item_at(row+1, col).set_text(str(self.dataSetSheet.cell_value((self.databaseViewCurrentPage-1)*10+1 + row, col)))
+        self.databaseViewPageLabel.set_text(str(self.databaseViewCurrentPage) + '/' + str(self.databaseViewTotalPage))
+
+
 
     def vagueSearchInput_changed(self, widget, newValue):
         self.currentVagueInput = newValue
