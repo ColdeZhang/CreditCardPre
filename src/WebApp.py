@@ -7,6 +7,7 @@ from math import log
 import DTreePlot
 import OffenceView
 import SearchCrimerView;
+from random import choice
 
 class MyApp(App):
     def __init__(self, *args):
@@ -108,17 +109,20 @@ class MyApp(App):
         self.vagueSearchPanel.append(self.modelSelect)
 
         # 输入框
-        self.inputText = gui.TextInput(width='80%', height=90, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
-        self.inputText.set_text('请输入犯罪事实')
-        self.vagueSearchPanel.append(self.inputText)
+        self.vagueSearchInput = gui.TextInput(width='80%', height=90, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.vagueSearchInput.set_text('请输入犯罪事实')
+        self.vagueSearchPanel.append(self.vagueSearchInput)
+        self.vagueSearchInput.onchange.do(self.vagueSearchInput_changed)
+        self.currentVagueInput = ""
+        self.previewVagueInput = ""
 
         # 查询按钮
         self.searchBtn = gui.Button('计算', width='80%', height=30, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
-        self.searchBtn.onclick.do(self.searchButtonClicked)
+        self.searchBtn.onclick.do(self.vagueSearchButtonClicked)
         self.vagueSearchPanel.append(self.searchBtn)
 
         # 结果显示
-        self.resultLabel = gui.Label("结果显示在这里", width='80%', height=90, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.resultLabel = gui.Label("结果显示在这里", width='80%', height=200, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
         self.vagueSearchPanel.append(self.resultLabel)
 
 
@@ -163,6 +167,56 @@ class MyApp(App):
         self.ageInput.append(self.ageInputLabel)
         self.ageInput.append(self.ageInputArea)
         self.preciseSearchPanel.append(self.ageInput)
+
+        self.eduLevelSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.eduLevelSelectLabel = gui.Label('教育程度：', width='40%', height=20, margin='10px')
+        self.eduLevelSelectDropDown = gui.DropDown.new_from_list(self.eduLevel, width='60%', height=20, margin='10px')
+        self.selectedEduLevel = ''
+        self.eduLevelSelectDropDown.select_by_value(self.selectedEduLevel)
+        self.eduLevelSelectDropDown.onchange.do(self.eduLevelSelect_changed)
+        self.eduLevelSelect.append(self.eduLevelSelectLabel)
+        self.eduLevelSelect.append(self.eduLevelSelectDropDown)
+        self.preciseSearchPanel.append(self.eduLevelSelect)
+
+        self.jobSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.jobSelectLabel = gui.Label('工作：', width='40%', height=20, margin='10px')
+        self.jobSelectDropDown = gui.DropDown.new_from_list(self.jobs, width='60%', height=20, margin='10px')
+        self.selectedJob = ''
+        self.jobSelectDropDown.select_by_value(self.selectedJob)
+        self.jobSelectDropDown.onchange.do(self.jobSelect_changed)
+        self.jobSelect.append(self.jobSelectLabel)
+        self.jobSelect.append(self.jobSelectDropDown)
+        self.preciseSearchPanel.append(self.jobSelect)
+
+        self.behaviorSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.behaviorSelectLabel = gui.Label('行为：', width='40%', height=20, margin='10px')
+        self.behaviorSelectDropDown = gui.DropDown.new_from_list(self.cashOutBehavior, width='60%', height=20, margin='10px')
+        self.selectedBehavior = ''
+        self.behaviorSelectDropDown.select_by_value(self.selectedBehavior)
+        self.behaviorSelectDropDown.onchange.do(self.behaviorSelect_changed)
+        self.behaviorSelect.append(self.behaviorSelectLabel)
+        self.behaviorSelect.append(self.behaviorSelectDropDown)
+        self.preciseSearchPanel.append(self.behaviorSelect)
+
+        self.goalSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.goalSelectLabel = gui.Label('目的：', width='40%', height=20, margin='10px')
+        self.goalSelectDropDown = gui.DropDown.new_from_list(self.consuGoals, width='60%', height=20, margin='10px')
+        self.selectedGoal = ''
+        self.goalSelectDropDown.select_by_value(self.selectedGoal)
+        self.goalSelectDropDown.onchange.do(self.goalSelect_changed)
+        self.goalSelect.append(self.goalSelectLabel)
+        self.goalSelect.append(self.goalSelectDropDown)
+        self.preciseSearchPanel.append(self.goalSelect)
+
+        self.proofSelect = gui.HBox(width='90%', height=20, margin='10px auto')
+        self.proofSelectLabel = gui.Label('证据：', width='40%', height=20, margin='10px')
+        self.proofSelectDropDown = gui.DropDown.new_from_list(self.proofs, width='60%', height=20, margin='10px')
+        self.selectedProof = ''
+        self.proofSelectDropDown.select_by_value(self.selectedProof)
+        self.proofSelectDropDown.onchange.do(self.proofSelect_changed)
+        self.proofSelect.append(self.proofSelectLabel)
+        self.proofSelect.append(self.proofSelectDropDown)
+        self.preciseSearchPanel.append(self.proofSelect)
 
 
 
@@ -302,16 +356,24 @@ class MyApp(App):
         return classLabel
     
 
-    def searchButtonClicked(self, widget):
+    def vagueSearchButtonClicked(self, widget):
         #   格式： 性别；年龄；教育经历；职业；现金；判决结果；辩护
         #   格式： sex; age; eduLevel; job; cashOut; consuGoal; proof
-        testVec=['男', 15, '高中', '', '', '', '']
-        #testVec=[self.sex.get(), self.old.get(),self.eduLevel.get(), self.job.get(), self.cashOut.get(), self.consuGoal.get(), self.proof.get()]
-        predictLabel=self.classify(self.dtree, self.getFeatureLabel(), testVec)
-        if predictLabel in self.crime_to_law.keys():
-            self.resultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
-        else:
-            self.resultLabel.set_text(predictLabel)
+        if self.currentVagueInput != self.previewVagueInput:
+            if len(self.currentVagueInput) < 30:
+                self.resultLabel.set_text("警告：信息不足！（请尽可能完整的描述案件）")
+            else:
+                testVec=[choice(['男', '女']), 36, choice(self.eduLevel), choice(self.jobs), choice(self.cashOutBehavior), choice(self.consuGoals), choice(self.proofs)]
+                #testVec=[self.sex.get(), self.old.get(),self.eduLevel.get(), self.job.get(), self.cashOut.get(), self.consuGoal.get(), self.proof.get()]
+                predictLabel=self.classify(self.dtree, self.getFeatureLabel(), testVec)
+                if predictLabel in self.crime_to_law.keys():
+                    self.resultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
+                else:
+                    self.resultLabel.set_text(predictLabel)
+                self.previewVagueInput = self.currentVagueInput
+
+    def vagueSearchInput_changed(self, widget, newValue):
+        self.currentVagueInput = newValue
 
     def selectModel_changed(self, widget, value):
         self.selectedModel = value
@@ -321,6 +383,22 @@ class MyApp(App):
 
     def ageInputArea_changed(self, widget, newValue):
         self.inputedAge = newValue
+
+    def eduLevelSelect_changed(self, widget, value):
+        self.selectedEduLevel = value
+
+    def jobSelect_changed(self, widget, value):
+        self.selectedJob = value
+
+    def behaviorSelect_changed(self, widget, value):
+        self.selectedBehavior = value
+
+    def goalSelect_changed(self, widget, value):
+        self.selectedGoal = value
+
+    def proofSelect_changed(self, widget, value):
+        self.selectedProof = value
+
 
 if __name__ == '__main__':
     start(MyApp, title="信用卡犯罪预测检索系统", address='0.0.0.0', port=11333, multiple_instance=True)
