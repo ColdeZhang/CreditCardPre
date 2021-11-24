@@ -235,8 +235,11 @@ class MyApp(App):
         self.databaseView = gui.VBox(width='80%', margin='0px auto', style={'display': 'block', 'overflow': 'hidden'})
         mainBox.add_tab(self.databaseView, '当前数据库')
 
-        self.databaseViewInfo = gui.Label('这里列出的是我们当前数据库中的所有数据，我们会在下个版本开通数据库访问服务。',width='90%', margin='20px')
+        self.databaseViewInfo = gui.Label('这里列出的是我们当前数据库中的所有数据，我们会在下个版本开通数据库访问服务。',width='90%', margin='20px', style={'font-size': '20px'})
         self.databaseView.append(self.databaseViewInfo)
+
+        self.databaseViewCounter = gui.Label('当前数据库中共有：' + str(nrows * 9) + '条数据。',width='90%', margin='20px')
+        self.databaseView.append(self.databaseViewCounter)
 
         databaseViewSet = [] # 总
         for row in range(0, nrows):
