@@ -117,13 +117,13 @@ class MyApp(App):
         self.previewVagueInput = ""
 
         # 查询按钮
-        self.searchBtn = gui.Button('计算', width='80%', height=30, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
-        self.searchBtn.onclick.do(self.vagueSearchButtonClicked)
-        self.vagueSearchPanel.append(self.searchBtn)
+        self.vagueSearchButton = gui.Button('计算', width='80%', height=30, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.vagueSearchButton.onclick.do(self.vagueSearchButtonClicked)
+        self.vagueSearchPanel.append(self.vagueSearchButton)
 
         # 结果显示
-        self.resultLabel = gui.Label("结果显示在这里", width='80%', height=200, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
-        self.vagueSearchPanel.append(self.resultLabel)
+        self.vagueResultLabel = gui.Label("结果显示在这里", width='80%', height=200, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.vagueSearchPanel.append(self.vagueResultLabel)
 
 
 
@@ -217,6 +217,15 @@ class MyApp(App):
         self.proofSelect.append(self.proofSelectLabel)
         self.proofSelect.append(self.proofSelectDropDown)
         self.preciseSearchPanel.append(self.proofSelect)
+
+        # 精确计算按钮
+        self.preciseSearchButton = gui.Button('计算', width='80%', height=30, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.preciseSearchButton.onclick.do(self.preciseSearchButtonClicked)
+        self.preciseSearchPanel.append(self.preciseSearchButton)
+
+        # 精确计算结果显示
+        self.preciseResultLabel = gui.Label("结果显示在这里", width='80%', height=200, margin='10px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.preciseSearchPanel.append(self.preciseResultLabel)
 
 
 
@@ -361,16 +370,29 @@ class MyApp(App):
         #   格式： sex; age; eduLevel; job; cashOut; consuGoal; proof
         if self.currentVagueInput != self.previewVagueInput:
             if len(self.currentVagueInput) < 30:
-                self.resultLabel.set_text("警告：信息不足！（请尽可能完整的描述案件）")
+                self.vagueResultLabel.set_text("警告：信息不足！（请尽可能完整的描述案件）")
             else:
                 testVec=[choice(['男', '女']), 36, choice(self.eduLevel), choice(self.jobs), choice(self.cashOutBehavior), choice(self.consuGoals), choice(self.proofs)]
                 #testVec=[self.sex.get(), self.old.get(),self.eduLevel.get(), self.job.get(), self.cashOut.get(), self.consuGoal.get(), self.proof.get()]
                 predictLabel=self.classify(self.dtree, self.getFeatureLabel(), testVec)
                 if predictLabel in self.crime_to_law.keys():
-                    self.resultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
+                    self.vagueResultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
                 else:
-                    self.resultLabel.set_text(predictLabel)
+                    self.vagueResultLabel.set_text(predictLabel)
                 self.previewVagueInput = self.currentVagueInput
+
+    def preciseSearchButtonClicked(self, widget):
+        #   格式： 性别；年龄；教育经历；职业；现金；判决结果；辩护
+        #   格式： sex; age; eduLevel; job; cashOut; consuGoal; proof
+
+        testVec=[self.selectedSex, self.inputedAge, self.selectedEduLevel, self.selectedJob, self.selectedBehavior, self.selectedGoal, self.selectedProof]
+        #testVec=[self.sex.get(), self.old.get(),self.eduLevel.get(), self.job.get(), self.cashOut.get(), self.consuGoal.get(), self.proof.get()]
+        predictLabel=self.classify(self.dtree, self.getFeatureLabel(), testVec)
+        if predictLabel in self.crime_to_law.keys():
+            self.preciseResultLabel.set_text(predictLabel+"\r\n"+self.crime_to_law[predictLabel])
+        else:
+            self.preciseResultLabel.set_text(predictLabel)
+                
 
     def vagueSearchInput_changed(self, widget, newValue):
         self.currentVagueInput = newValue
