@@ -323,5 +323,5 @@ class MyApp(App):
         self.inputedAge = newValue
 
 if __name__ == '__main__':
-    start(MyApp, title="信用卡犯罪预测检索系统", address='0.0.0.0', port=11111, multiple_instance=True)
+    start(MyApp, title="信用卡犯罪预测检索系统", address='0.0.0.0', port=11333, multiple_instance=True)
 
