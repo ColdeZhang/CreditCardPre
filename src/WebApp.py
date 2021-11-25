@@ -156,7 +156,7 @@ class MyApp(App):
         self.preciseSearch.append(self.preciseSearchPanel)
 
         # 精确计算说明
-        self.preciseSearchTitle = gui.Label('关于模糊计算', width='80%', style={'font-size': '20px'})
+        self.preciseSearchTitle = gui.Label('关于精确计算', width='80%', style={'font-size': '20px'})
         self.preciseSearchSubTitle_1 = gui.Label('#如何使用', width='90%', margin='10px', style={'font-size': '15px'})
         self.preciseSearchContent_1 = gui.Label('相比于模糊计算，在精确计算这里您需要手动选择案件的特征信息，由于输入信息相比于模糊计算而言是确定的有限的，因此精确计算的准确率会比模糊计算高上许多。', width='90%', style={'font-size': '13px'})
         self.preciseSearchSubTitle_2 = gui.Label('#怎么做到的', width='90%', margin='10px', style={'font-size': '15px'})
