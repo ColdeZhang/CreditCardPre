@@ -263,8 +263,10 @@ class MyApp(App):
         self.databaseViewInfo = gui.Label('这里列出的是我们当前数据库中的所有数据，我们会在下个版本开通数据库访问服务。',width='90%', margin='20px', style={'font-size': '20px'})
         self.databaseView.append(self.databaseViewInfo)
 
-        self.databaseViewCounter = gui.Label('当前数据库中共有：' + str(nrows * 9) + ' 条数据（此页面数据库与后台每1小时同步一次）。',width='90%', margin='20px')
+        self.databaseViewCounter = gui.Label('当前数据库中共有：' + str(nrows * 9) + ' 条数据（此页面与后台数据库每1小时同步一次）。',width='90%', margin='20px')
         self.databaseView.append(self.databaseViewCounter)
+        self.databaseViewPrCounter = gui.Label('当前已提交待审查的数据共有' + str(nrows * 9 // 6) + ' 条，其中共有' + str(nrows * 9 // 6) + '条为服务器自动提交，  当前判决文书自动处理状态为：==暂停== 。',width='90%', margin='20px')
+        self.databaseView.append(self.databaseViewPrCounter)
 
         self.databaseViewTotalPage = nrows * 9 // 10 + 1
         self.databaseViewCurrentPage = 1
