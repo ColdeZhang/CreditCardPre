@@ -1,3 +1,4 @@
+#coding:utf-8
 import remi.gui as gui
 from remi import start, App
 import xlrd
@@ -83,17 +84,31 @@ class MyApp(App):
 
         # 页面一
         # 模糊计算页面
-        self.vagueSearch = gui.Container(width='80%',layout_orientation=gui.Container.LAYOUT_HORIZONTAL, margin='0px auto', style={'display': 'block', 'overflow': 'hidden'})
+        self.vagueSearch = gui.Container(width='90%',layout_orientation=gui.Container.LAYOUT_HORIZONTAL, margin='0px auto', style={'display': 'block', 'overflow': 'hidden'})
         mainBox.add_tab(self.vagueSearch, '模糊计算')
         self.vagueSearchInfo = gui.VBox(width='40%', margin='10px')
-        self.vagueSearchPanel = gui.VBox(width='40%', margin='10px')
+        self.vagueSearchPanel = gui.VBox(width='40%', margin='50px')
         self.vagueSearch.append(self.vagueSearchInfo)
         self.vagueSearch.append(self.vagueSearchPanel)
 
         # 模糊计算说明
         self.vagueSearchTitle = gui.Label('关于模糊计算', width='80%', style={'font-size': '20px'})
+        self.vagueSearchSubTitle_1 = gui.Label('#如何使用', width='90%', margin='10px', style={'font-size': '15px'})
+        self.vagueSearchContent_1 = gui.Label('在输入框中尽可能全面的描述您所需要计算的案件信息，系统会自动将您输入的内容进行提取，越全面的信息越有助于系统对您的案件进行计算。我们训练并提供了多种计算模型，可在输入框上方的下拉菜单中选择。不同的模型在准确率、计算时间、资源消耗、数据依赖性上均有不同的表现，通常情况下来说选择默认的C5.0决策树即可有效解决您的问题。', width='90%', style={'font-size': '13px'})
+        self.vagueSearchSubTitle_2 = gui.Label('#怎么做到的', width='90%', margin='10px', style={'font-size': '15px'})
+        self.vagueSearchContent_2 = gui.Label('在您按下计算按钮后发生了几件事：首先对输入的案件信息进行关键词划分与提取，在这一步中我们使用了自然语言处理（NLP）技术中的Transformer模型。该模型由编码组件、解码组件和它们之间的连接层组成。编码组件是六层编码器首位相连堆砌而成，解码组件也是六层解码器堆成的。编码器是完全结构相同的，但是并不共享参数，每一个编码器都可以拆解成两个子部分（下图是一个两层的Transformer模型示意图）。编码器的输入首先流过一个self-attention层，该层帮助编码器能够看到输入序列中的其他单词当它编码某个词时。 self-attention的输出流向一个前向网络，每个输入位置对应的前向网络是独立互不干扰的。 解码器同样也有这些子层，但是在两个子层间增加了attention层，该层有助于解码器能够关注到输入句子的相关部分，与 seq2seq model 的Attention作用相似。词的向量化仅仅发生在最底层的编码器的输入时，这样每个编码器的都会接收到一个list（每个元素都是512维的词向量），只不过其他编码器的输入是前个编码器的输出。Transformer模型的的一个特点就是:每个位置的词仅仅流过它自己的编码器路径。在self-attention层中，这些路径两两之间是相互依赖的。前向网络层则没有这些依赖性，但这些路径在流经前向网络时可以并行执行。最后所有的信息会被整理成一个向量传输到计算模型进程。【更多关于Transformer模型技术细节的信息可以查阅（https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html）】', width='90%', style={'font-size': '13px'})
+        self.vagueSearchInfoImage_1 = gui.Image('https://i.loli.net/2021/08/14/cZwj86rmAXd7K9R.png', width = '80%')
+        self.vagueSearchContent_3 = gui.Label('模型计算进程首先会根据您选择的模型种类对输入的向量做进一步的整理（扩增、变异等），随后特定的模型会计算这些向量数据。NBC 模型发源于古典数学理论，有着坚实的数学基础。该算法是基于条件独立性假设的一种算法，当条件独立性假设成立时，利用贝叶斯公式计算出其后验概率，即该对象属于某一类的概率，选择具有最大后验概率的类作为该对象所属的类。LR 回归是当前业界比较常用的机器学习方法，用于估计某种事物的可能性。它与多元线性回归同属一个家族，即广义线性模型。简单来说多元线性回归是直接将特征值和其对应的概率进行相乘得到一个结果，逻辑回归则是在这样的结果上加上一个逻辑函数。在此选择LR 作为回归分析模型的代表进行介绍。SVM 算法是建立在统计学习理论基础上的机器学习方法，为十大数据挖掘算法之一。通过学习算法，SVM 可以自动寻找出对分类有较好区分能力的支持向量，由此构造出的分类器可以最大化类与类的间隔，因而有较好的适应能力和较高的分准率。SVM 算法的目的在于寻找一个超平面H，该超平面可以将训练集中的数据分开，且与类域边界的沿垂直于该超平面方向的距离最大，故SVM 法亦被称为最大边缘算法。ID3 算法是一种基于决策树的分类算法，该算法是以信息论为基础，以信息熵和信息增益为衡量标准，从而实现对数据的归纳分类。信息增益用于度量某个属性对样本集合分类的好坏程度。ID3 算法的时间复杂度为O(n*|D|*log|D|)。C5.0 算法是 Quinlan 在C4.5 算法的基础上改进而来的产生决策树的一种更新的算法，它除了包括C4.5 的全部功能外，还引入许多新的技术，其中最重要的技术是提升（Boosting）技术，目的是为了进一步提高决策树对样本的识别率。同时C5.0 的算法复杂度要更低，使用更简单，适应性更强，因此具有更高的使用价值。KNN 算法是Cover 和Hart 于1968 年提出的理论上比较成熟的方法，为十大挖掘算法之一。该算法的思路非常简单直观：如果一个样本在特征空间中的k 个最相似(即特征空间中最邻近)的样本中的大多数属于某一个类别，则该样本也属于这个类别。该方法在定类决策上只依据最邻近的一个或者几个样本的类别来决定待分样本所属的类别。人工神经网络（ANN）算法就是一组连续的输入/输出单元，其中每个连接都与一个权相关。在学习阶段，通过调整神经网络的权，使得能够预测样本的正确类标号来学习。', width='90%', style={'font-size': '13px'})
+
         self.vagueSearchInfo.append(self.vagueSearchTitle)
-        self.vagueSearchContent = gui.Label('', width='90%', style={'font-size': '20px'})
+        self.vagueSearchInfo.append(self.vagueSearchSubTitle_1)
+        self.vagueSearchInfo.append(self.vagueSearchContent_1)
+        self.vagueSearchInfo.append(self.vagueSearchSubTitle_2)
+        self.vagueSearchInfo.append(self.vagueSearchContent_2)
+        self.vagueSearchInfo.append(self.vagueSearchInfoImage_1)
+        self.vagueSearchInfo.append(self.vagueSearchContent_3)
+
+
 
         # 选择模型
         self.modelSelect = gui.HBox(width='90%', height=60, margin='10px auto')
