@@ -3,11 +3,7 @@ import remi.gui as gui
 from remi import start, App
 import xlrd
 import operator
-import tkinter
 from math import log
-import DTreePlot
-import OffenceView
-import SearchCrimerView;
 from random import choice
 
 class MyApp(App):
